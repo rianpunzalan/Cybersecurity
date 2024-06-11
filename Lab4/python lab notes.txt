@@ -1,0 +1,10 @@
+python class notes 
+UserAgent
+
+catch using criteria
+
+status 401
+useragent string
+accesses some function?
+
+flag them
