@@ -21,7 +21,7 @@ flagged = []
 for log in logs:
     #re.split(' - - |,', log)
     
-    ip_address= re.findall('(.+) - - \[(.+)\] \"(.+)\" ([0-9][0-9][0-9] [0-9][0-9][0-9])',log)
+    ip_address= re.findall('(.+) - - \[(.+)\] \"(.+)\" (\d) (\d) \"(.+)\" \"(.+)\"',log)
     
     """ date_stamp = re.findall(' \[(.+)\] ',log)
     request_string = re.findall(' \"(.+) \"-',log)
