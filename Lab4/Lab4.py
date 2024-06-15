@@ -10,41 +10,51 @@ filename = 'access.log1.2017-01-01'
 logs = ''
 try:
     with open(filename, 'r') as file:
-        logs = file.readlines()                     
+        logs = file.read()                     
         file.close()
 except FileNotFoundError:
     print(f"Error: File '{filename}' not found.")
+    
+log_array= re.findall(r'(.+) - - (\[.+\]) (\".+\") (\d+) (\d+) (\".+\") (\".+\") ',logs)
+keywords =["admin","self.logs","bot","honeypot","401","403","404"]
+flagged_logs = {"admin":[],"self.logs":[],"bot":[],"honeypot":[],"401":[],"403":[],"404":[]}
 
-
-flagged = []
-# Strips the newline character
-for log in logs:
-    #re.split(' - - |,', log)
+line_number=1
+for log in log_array:
+    flag = False
+    ip_address = log[0]
+    date_stamp = log[1]
+    request_string = log[2]
+    response_code = log[3]
+    object_size = log[4]
+    search_engine=log[5] 
+    browser =log[6]
     
-    ip_address= re.findall('(.+) - - \[(.+)\] \"(.+)\" (\d) (\d) \"(.+)\" \"(.+)\"',log)
     
-    """ date_stamp = re.findall(' \[(.+)\] ',log)
-    request_string = re.findall(' \"(.+) \"-',log)
-    response_code = re.findall
-    browser = re.findall('-\"(.+) ',log)
-    keywords =["401","bot","honeypot"]
-    flag = False """
-    
-    """ 
     for keyword in keywords:
-        if keyword in ip_address or keyword in request_string or keyword in browser:
-            flag = True 
-    if flag:
-        flagged.append({"ip_address":ip_address,"date_stamp":date_stamp,})
-        """
-    print(ip_address)
-    #print(date_stamp)
-    #print(request_string)
-   # print(browser) 
-    
-    #log_list = log.split(" - - ")
-    #ip_address = log_list[0]
-    #print(log_list)
-        
-    #print("Line{}: {}".format(count, log.strip()))
+        if keyword.casefold() in request_string or keyword.casefold() in browser or keyword == response_code:
+            flagged_logs[keyword].append({"user_agent":browser,"request_string":request_string,"ip_address":ip_address,"date_stamp":date_stamp,"line_number":line_number})
+            break
+    line_number+=1
+
+print("\nSuspicious Activity Statistics")
+print("Choices: ")
+count = 1
+for flag_type in flagged_logs:
+    print(f"{count} - {flag_type}: {len(flagged_logs[flag_type])} hits.")
+    count+=1
+
+while True:
+    choice = input("input choice to see the access details: ")
+    if 1 <= int(choice) <= 7:
+        for log in flagged_logs[keywords[int(choice)-1]]:
+            print(f"\nUser-agent: {log['user_agent']}")
+            print(f"request: {log['request_string']}")
+            print(f"IP: {log['ip_address']}")
+            print(f"datetime: {log['date_stamp']}")
+            print(f"line in log file: {log['line_number']}")
+        break
+    else:
+        print("invalid choice")
+
     
